@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>口袋里的小龙</title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css" th:href="@{/layui/css/layui.css}">
+    <script type="text/javascript" src="/static/js/jquery/jquery-2.1.0.js" th:src="@{/js/jquery/jquery-2.1.0.js}"></script>
+    <script type="text/javascript" src="/static/js/jquery.md5.js" th:src="@{/js/jquery.md5.js}"></script>
+</head>
+<body class="layui-layout-body ">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header ">
+        <div class="layui-logo">zookeeper-UI</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+        <ul class="layui-nav layui-layout-left">
+            <li class="layui-nav-item"><a  href="javascript:window.location.reload()" th:href="@{/}">首页</a></li>
+            <li class="layui-nav-item" ><a href="javascript:void(0);" onclick="openZookeeperPage()"  th:text="${zookeeperProperties.connectString}">192.168.10.222</a></li>
+        </ul>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item ">
+                <a href="javascript:;">
+                    <img src="/static/images/zookeeper_small.gif" th:src=@{/images/zookeeper_small.gif} class="layui-nav-img">
+				zookeeper
+                </a>
+            </li>
+            <li class="layui-nav-item"><a href="javascript:window.location.reload()">刷新</a></li>
+        </ul>
+    </div>
+    <form class="layui-form"  action="/zookeeperIndex" th:action="@{/zookeeperIndex}" method="post" style="display: none;" id="zookeeper-form" name="zookeeper-form" lay-filter="zookeeper-form">
+    	<input name="connectString" th:value="${zookeeperProperties.connectString}" /> 
+    </form>
+    <!-- 左侧
+      <div class="layui-side layui-bg-black">
+	    <div class="layui-side-scroll">
+	      <ul class="layui-nav layui-nav-tree" id="zookeeper-link-menu" lay-filter="test">
+	        <li class="layui-nav-item"><a href="javascript:void(0)">主页</a></li>
+	        <li class="layui-nav-item"><a href="javascript:void(0)" id="default-connection">the links</a></li>
+	      </ul>
+	    </div>
+	  </div>
+	  -->  
+    <!-- 中间 -->
+    <div class="layui-body" style="left:0">
+        <!-- 内容主体区域 -->
+            <div class="layui-bg-gray" style="padding: 30px; margin-top: 40px;">
+                <div class="layui-row layui-col-space15">
+                    <div class="layui-col-md12">
+	                    <div class="layui-card">
+					        <div class="layui-card-header layui-bg-green ">系统信息</div>
+					        <div class="layui-card-body layui-text layadmin-version">
+					          <table class="layui-table" th:if="${systemEnvironment != null} ">
+					            <colgroup><col width="200"><col></colgroup>
+					            <tbody>
+					              <tr>
+					                <td>系统名称</td>
+					                <td th:text="${systemEnvironment.osName}">系统名称</td>
+					              </tr>
+					              <tr>
+					                <td>系统架构</td>
+					                <td th:text="${systemEnvironment.osArch}">系统架构</td>
+					              </tr>
+					              <tr>
+					                <td>系统版本</td>
+					                <td th:text="${systemEnvironment.osVersion}">系统版本</td>
+					              </tr>
+					              <tr>
+					                <td>系统补丁版本</td>
+					                <td th:text="${systemEnvironment.osPatchLevel}">系统补丁版本</td>
+					              </tr>
+					            </tbody>
+					          </table>
+					        </div>
+					    </div>
+				    </div>
+                    <div class="layui-col-md12">
+                        <div class="layui-card">
+                            <div class="layui-card-header layui-bg-green">系统用户信息</div>
+					        <div class="layui-card-body layui-text layadmin-version">
+					          <table class="layui-table" th:if="${userEnvironment != null} ">
+					            <colgroup><col width="200"><col></colgroup>
+					            <tbody>
+					              <tr>
+					                <td>用户名称</td>
+					                <td th:text="${userEnvironment.userName}">用户名称</td>
+					              </tr>
+					              <tr>
+					                <td>用户所在国家</td>
+					                <td th:text="${userEnvironment.userCountry}">用户所在国家</td>
+					              </tr>
+					              <tr>
+					                <td>用户使用语言</td>
+					                <td th:text="${userEnvironment.userLanguage}">用户使用语言</td>
+					              </tr>
+					              <tr>
+					                <td>用户时区</td>
+					                <td th:text="${userEnvironment.userTimezone}">用户时区</td>
+					              </tr>
+					              <tr>
+					                <td>用户工作目录</td>
+					                <td th:text="${userEnvironment.userDir}">用户工作目录</td>
+					              </tr>
+					              <tr>
+					                <td>用户目录</td>
+					                <td th:text="${userEnvironment.userHome}"></td>
+					              </tr>
+					            </tbody>
+					          </table>
+					        </div>
+				     	 </div>
+                    </div>
+					<div class="layui-col-md12">
+						<div class="layui-card">
+							<div class="layui-card-header layui-bg-green">服务信息</div>
+							<div class="layui-card-body layui-text layadmin-version">
+								<table class="layui-table"  th:if="${serverEnvironment != null} ">
+									<colgroup>
+										<col width="200">
+										<col>
+									</colgroup>
+									<tbody>
+										<tr>
+											<td>系统名称</td>
+											<td th:text="${serverEnvironment.catalinaUseNaming}">系统名称</td>
+										</tr>
+										<tr>
+											<td>运行的目录</td>
+											<td th:text="${serverEnvironment.catalinaHome}">运行的目录</td>
+										</tr>
+										<tr>
+											<td>运行的目录</td>
+											<td th:text="${serverEnvironment.catalinaBase}">运行的目录</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<div class="layui-col-md12">
+						<div class="layui-card">
+							<div class="layui-card-header layui-bg-green">java 信息</div>
+							<div class="layui-card-body layui-text layadmin-version">
+								<table class="layui-table" th:if="${javaEnvironment != null} ">
+									<colgroup>
+										<col width="200">
+										<col>
+									</colgroup>
+									<tbody>
+										<tr>
+											<td>java版本</td>
+											<td th:text="${javaEnvironment.javaVersion}">java 版本</td>
+										</tr>
+										<tr>
+											<td>java版本</td>
+											<td th:text="${javaEnvironment.javaSpecificationVersion}">java
+												版本</td>
+										</tr>
+										<tr>
+											<td>java编译版本</td>
+											<td th:text="${javaEnvironment.javaClassVersion}">java 编译版本</td>
+										</tr>
+										<tr>
+											<td>ext目录</td>
+											<td th:text="${javaEnvironment.javaExtDirs}">ext 目录</td>
+										</tr>
+										<tr>
+											<td>java安装目录</td>
+											<td th:text="${javaEnvironment.javaHome}">java 安装目录</td>
+										</tr>
+										<tr>
+											<td>java厂商</td>
+											<td th:text="${javaEnvironment.javaVendor}">java 厂商</td>
+										</tr>
+										<tr>
+											<td>java临时文件存储位置</td>
+											<td th:text="${javaEnvironment.javaIoTmpdir}">java 临时文件存储位置</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<div class="layui-col-md12">
+						<div class="layui-card">
+							<div class="layui-card-header layui-bg-green">jvm信息</div>
+							<div class="layui-card-body layui-text layadmin-version">
+								<table class="layui-table" th:if="${jvmEnvironment != null} ">
+									<colgroup>
+										<col width="200">
+										<col>
+									</colgroup>
+									<tbody>
+										<tr>
+											<td>vm名称</td>
+											<td th:text="${jvmEnvironment.javaVmName}">vm 名称</td>
+										</tr>
+										<tr>
+											<td>vm信息</td>
+											<td th:text="${jvmEnvironment.javaVmInfo}">vm 信息</td>
+										</tr>
+										<tr>
+											<td>vm版本</td>
+											<td th:text="${jvmEnvironment.javaVmVersion}">vm版本</td>
+										</tr>
+										<tr>
+											<td>vm厂商</td>
+											<td th:text="${jvmEnvironment.javaVmVendor}">vm版本</td>
+										</tr>
+										<tr>
+											<td>vm 版本</td>
+											<td th:text="${jvmEnvironment.javaVmSpecificationVersion}">vm版本</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				<div class="layui-col-md12">
+				<!-- 详细信息 -->
+	                    <div class="layui-card">
+					        <div class="layui-card-header layui-bg-green ">zookeeper连接信息</div>
+					        <div class="layui-card-body layui-text layadmin-version">
+					          <table class="layui-table" th:if="${zookeeperEnvironment != null} ">
+					            <colgroup><col width="200"><col></colgroup>
+					            <tbody>
+					              <tr>
+					                <td>zookeeper 版本</td>
+					                <td th:text="${zookeeperEnvironment.zookeeperVersion}">系统名称</td>
+					              </tr>
+					              <tr>
+					                <td>空闲内存</td>
+					                <td th:text="${zookeeperEnvironment.osMemoryFree}">系统架构</td>
+					              </tr>
+					              <tr>
+					                <td>内存使用大小</td>
+					                <td th:text="${zookeeperEnvironment.osMemoryTotal}">系统版本</td>
+					              </tr>
+					              <tr>
+					                <td>最大内存</td>
+					                <td th:text="${zookeeperEnvironment.osMemoryMax}">系统补丁版本</td>
+					              </tr>
+					              <tr>
+					                <td>重试时间间隔</td>
+					                <td th:text="${zookeeperProperties.baseSleepTimeMs}">重试时间间隔</td>
+					              </tr>
+					              <tr>
+					                <td>重试最大次数</td>
+					                <td th:text="${zookeeperProperties.maxRetries}">重试次数</td>
+					              </tr>
+					              <tr>
+					                <td>最大重试时间间隔</td>
+					                <td th:text="${zookeeperProperties.maxSleepMs}">最大重试时间间隔</td>
+					              </tr>
+					              <tr>
+					                <td>阻止等待连接时间</td>
+					                <td th:text="${zookeeperProperties.blockUntilConnectedWait}">阻止等待连接时间</td>
+					              </tr>
+					            </tbody>
+					          </table>
+					        </div>
+					    </div>
+				
+				</div>
+					
+					
+				</div>
+            </div>
+    </div>
+
+    <div class="layui-footer" style="left:0">
+        <!-- 底部固定区域 -->
+       口袋里的小龙
+    </div>
+</div>
+<script type="text/javascript" src="/layui/layui.js" th:src="@{/layui/layui.js}"></script>
+<!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+<!--[if lt IE 9]>
+<script src="/js/html5shiv/html5.min.js" th:src="@{/js/html5shiv/html5.min.js}"></script>
+<script src="/js/html5shiv/respond.min.js" th:src="@{/js/html5shiv/respond.min.js}"></script>
+<![endif]-->
+<script type="text/javascript" th:inline="none">
+ 	var params = $.md5(new Date());
+    $("#params").val(params);
+    //JavaScript代码区域
+    layui.use(['element','form'], function(){
+        var element = layui.element;
+		var form = layui.form;
+		
+		/*
+		//你可以把*号换成任意的值，如：lay-filter="go"，但触发事件时也要改成 form.on('submit(go)', callback);
+		form.on('submit(zookeeper-form)', function(data){
+		  console.log(data.elem) //被执行事件的元素DOM对象，一般为button对象
+		  console.log(data.form) //被执行提交的form对象，一般在存在form标签时才会返回
+		  console.log(data.field) //当前容器的全部表单字段，名值对形式：{name: value}
+		  return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+		});
+		*/
+    });
+    
+   function openZookeeperPage(){
+   		console.log(JSON.stringify($("#zookeeper-form").serialize()));
+		$("#zookeeper-form").submit();
+	}
+   
+  
+</script>
+</body>
+</html>

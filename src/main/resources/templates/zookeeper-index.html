@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>口袋里的小龙</title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css" th:href="@{/layui/css/layui.css}">
+    <script type="text/javascript" src="/static/js/jquery/jquery-2.1.0.js" th:src="@{/js/jquery/jquery-2.1.0.js}"></script>
+    <script type="text/javascript" src="/static/js/jquery.md5.js" th:src="@{/js/jquery.md5.js}"></script>
+</head>
+<body class="layui-layout-body ">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header ">
+        <div class="layui-logo">zookeeper-UI</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+        <ul class="layui-nav layui-layout-left">
+            <li class="layui-nav-item"><a href="javascript:void(0)" onclick="openIndexPage()" >首页</a></li>
+            <li class="layui-nav-item" ><a href="javascript:void(0)" onclick="reloadThisPage()" id="zookeeper-li-a" th:text="${connectString}">192.168.10.222</a></li>
+        </ul>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item ">
+                <a href="javascript:;">
+                    <img src="/static/images/zookeeper_small.gif" th:src=@{/images/zookeeper_small.gif} class="layui-nav-img">
+				zookeeper
+                </a>
+            </li>
+            <li class="layui-nav-item"><a href="javascript:window.location.reload()" >刷新</a></li>
+        </ul>
+    </div>
+    <!-- 中间 -->
+    <div class="layui-body" style="left:0">
+        <!-- 内容主体区域 -->
+            <div class="layui-bg-gray" style="padding: 30px; margin-top: 40px;">
+                <div class="layui-row layui-col-space15">
+					<div class="layui-col-md12">
+						 <div class="layui-btn-container">
+						     <button type="button" class="layui-btn" onclick="connectionZookeeper()">连接</button>
+						     <button type="button" class="layui-btn layui-btn-danger" onclick="closeZookeeper()">关闭</button>
+						 </div>
+					</div>
+					<div class="layui-col-md6">
+						
+					    <!-- 连接信息 -->
+						<div class="layui-card">
+							<div class="layui-card-header layui-bg-green ">zookeeper连接信息</div>
+							<div class="layui-card-body layui-text">
+								  <div id="zookeeper-node-tree"></div>
+							</div>
+						</div>
+					</div>
+                    <div class="layui-col-md6 ">
+                    	<!-- 连接状态 -->
+                    	 <div class="layui-card">
+					        <div class="layui-card-header layui-bg-green ">zookeeper连接状态</div>
+					        <div class="layui-card-body layui-text layadmin-version">
+					          <table class="layui-table" >
+					            <colgroup><col width="200"><col></colgroup>
+					            <tbody>
+					              <tr>
+					                <td>zookeeper 连接状态</td>
+					                <td id="zookeeperConnectioned">未连接</td>
+					              </tr>
+					              <tr>
+					                <td>zookeeper 连接IP</td>
+					                <td id="zookeeperAddress">0.0.0.0:2181</td>
+					              </tr>
+					            </tbody>
+					          </table>
+					        </div>
+					    </div>
+					     <!-- 节点数据 -->
+					    <div class="layui-card">
+					        <div class="layui-card-header layui-bg-green ">zookeeper节点数据</div>
+					        <div class="layui-card-body layui-text layadmin-version" id="zookeeper_node_data" >
+					         data
+					        </div>
+					    </div>
+                    	<!-- 节点信息 -->
+                    	<div class="layui-card">
+					        <div class="layui-card-header layui-bg-green ">zookeeper节点信息</div>
+					        <div class="layui-card-body layui-text layadmin-version">
+					          <table class="layui-table"  id="zookeeper-node-table">
+					            <colgroup><col width="200"><col></colgroup>
+					            <tbody>
+					              <tr>
+					                <td>zookeeper.node.path</td>
+					                <td id="zookeeper_node_path">path</td>
+					              </tr>
+					              <tr>
+					                <td>zookeeper.czxid</td>
+					                <td id="zookeeper_czxid">czxid</td>
+					              </tr>
+					              <tr>
+					                <td>zookeeper.mzxid</td>
+					                <td id="zookeeper_mzxid">mzxid</td>
+					              </tr>
+					              <tr>
+					                <td>zookeeper.ctime</td>
+					                <td id="zookeeper_ctime">ctime</td>
+					              </tr>
+					              <tr>
+					                <td>zookeeper.mtime</td>
+					                <td id="zookeeper_mtime">mtime</td>
+					              </tr>
+					              <tr>
+					                <td>zookeeper.version</td>
+					                <td id="zookeeper_version">version</td>
+					              </tr>
+					              <tr>
+					                <td>zookeeper.cversion</td>
+					                <td id="zookeeper_cversion">cversion</td>
+					              </tr>
+					              <tr>
+					                <td>zookeeper.aversion</td>
+					                <td id="zookeeper_aversion">aversion</td>
+					              </tr>
+					              <tr>
+					                <td>zookeeper.ephemeralOwner</td>
+					                <td id="zookeeper_ephemeralOwner">ephemeralOwner</td>
+					              </tr>
+					              <tr>
+					                <td>zookeeper.dataLength</td>
+					                <td id="zookeeper_dataLength">dataLength</td>
+					              </tr>
+					              <tr>
+					                <td>zookeeper.numChildren</td>
+					                <td id="zookeeper_numChildren">numChildren</td>
+					              </tr>
+					              <tr>
+					                <td>zookeeper.pzxid</td>
+					                <td id="zookeeper_pzxid">pzxid</td>
+					              </tr>
+					            </tbody>
+					          </table>
+					        </div>
+					    </div>
+					   
+                    	
+				    </div>
+				</div>
+            </div>
+    </div>
+
+    <div class="layui-footer" style="left:0">
+        <!-- 底部固定区域 -->
+       口袋里的小龙
+    </div>
+</div>
+<script type="text/javascript" src="/layui/layui.js" th:src="@{/layui/layui.js}"></script>
+<!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+<!--[if lt IE 9]>
+<script src="/js/html5shiv/html5.min.js" th:src="@{/js/html5shiv/html5.min.js}"></script>
+<script src="/js/html5shiv/respond.min.js" th:src="@{/js/html5shiv/respond.min.js}"></script>
+<![endif]-->
+<script type="text/javascript" th:inline="none">
+
+
+	var params = $.md5(new Date());
+    $("#params").val(params);
+    //JavaScript代码区域
+    layui.use(['element','tree','table'], function(){
+        var element = layui.element;
+		var tree = layui.tree;
+		var table = layui.table;
+		 //初始 数据对象
+		var  zookeeperData = [{title: 'root',id: "/"}];
+	  	
+		//树形展示列表 初始化组件
+		  tree.render({
+		     elem: '#zookeeper-node-tree',
+		     data: zookeeperData,
+		     showCheckbox: false,  //是否显示复选框
+		     accordion: true, 	//是否开启手风琴模式，默认 false
+		     id: 'zookeeper-root-node', //设定实例唯一索引，用于基础方法传参使用。
+		     isJump: false, //是否允许点击节点时弹出新窗口跳转
+		     showLine: false,  //是否开启连接线。默认 true，若设为 false，则节点左侧出现三角图标。
+		     click: function(obj){
+		      	var data = obj.data;  //获取当前点击的节点数据
+		      	//console.log(obj.data); //得到当前点击的节点数据
+			    //console.log(obj.state); //得到当前节点的展开状态：open、close、normal
+			    //console.log(obj.elem); //得到当前节点元素
+			    console.log(data.id); //得到当前节点元素
+		      	checkZookeeperNodeExist(data.id);
+		     }
+		  });
+		  //重新加载 tree
+		  window.reloadTree = function(zookeeperNodeList){
+		  	//可以重载所有基础参数
+			tree.reload("zookeeper-root-node", {
+		  	//新的参数
+		 	 data: zookeeperNodeList
+			});
+		  }
+		 	
+	
+    });
+    //检查节点连接状态标识定时任务编号
+    var checkZookeeperHeath = null;
+    $(document).ready(function(){
+	    closeWindowTask();
+	});
+	
+	
+	/*
+ 	查询zookeeper节点
+ 	nodePath 节点编号 对应zookeeper 的 path
+ 	*/
+    function selectZookeeperNodeList(nodePath){
+    	if(null == nodePath || "" == nodePath || undefined == ""){
+    		nodePath = "/";
+    	}
+ 		  $.ajax({
+              type: "POST",
+              url: "/selectZookeeperNodeList",
+              cache: true,
+              dataType:"json",
+              data:{"params":params,"nodePath":nodePath},
+              success: function(result){
+                  console.log(JSON.stringify(result));
+                  if(result != null){
+                  	if(result.zookeeperConnectioned == false){
+                  		layer.alert("未连接到zookeeper服务器，请先连接！", {icon: 5});
+                  		return ;
+                  	}
+                    if(result.zookeeperNodeList != null && result.zookeeperNodeList != undefined){
+                   		reloadTree(result.zookeeperNodeList);
+                    }
+                  }
+              },
+              //error 在请求出错时调用。传入XMLHttpRequest对象，描述错误类型的字符串以及一个异常对象（如果有的话） 
+              error:function(XMLHttpRequest, textStatus, errorThrown){
+              	//console.log(JSON.stringify(XMLHttpRequest));
+               	//console.log(JSON.stringify(textStatus));
+               	//console.log(JSON.stringify(errorThrown));
+              	$("#zookeeperConnectioned").html("连接失败,服务异常！");
+                  $("#zookeeperConnectioned").css("color","#FF5722");
+                  $("#zookeeper-li-a").css("color","#FF5722");
+                  closeWindowTask();
+              }
+          });
+	}
+	
+	/*检测节点是否存在 */
+	function checkZookeeperNodeExist(nodePath){
+    	if(null == nodePath || "" == nodePath || undefined == ""){
+    		nodePath = "/";
+    	}
+ 		  $.ajax({
+              type: "POST",
+              url: "/checkZookeeperNodeExist",
+              cache: true,
+              dataType:"json",
+              data:{"params":params,"nodePath":nodePath},
+              success: function(result){
+                  console.log(JSON.stringify(result));
+                  if(result != null){
+                  	if(result.zookeeperConnectioned == false){
+                  		layer.alert("未连接到zookeeper服务器，请先连接！", {icon: 5});
+                  		return ;
+                  	}
+                    showStat(result.stat,nodePath,result.data);
+                  }
+              },
+              //error 在请求出错时调用。传入XMLHttpRequest对象，描述错误类型的字符串以及一个异常对象（如果有的话） 
+              error:function(XMLHttpRequest, textStatus, errorThrown){
+              	//console.log(JSON.stringify(XMLHttpRequest));
+               	//console.log(JSON.stringify(textStatus));
+               	//console.log(JSON.stringify(errorThrown));
+              	  $("#zookeeperConnectioned").html("连接失败,服务异常！");
+                  $("#zookeeperConnectioned").css("color","#FF5722");
+                  $("#zookeeper-li-a").css("color","#FF5722");
+                  closeWindowTask();
+                  showStat(null,nodePath,null);
+              }
+          });
+	}
+	
+	/*显示节点状态详细信息*/
+	function showStat(stat,nodePath,data){
+		if(null == stat || "" == stat){
+		    $("#zookeeper_czxid").html("");
+			$("#zookeeper_mzxid").html("");
+			$("#zookeeper_ctime").html("");
+			$("#zookeeper_mtime").html("");
+			$("#zookeeper_version").html("");
+			$("#zookeeper_cversion").html("");
+			$("#zookeeper_aversion").html("");
+			$("#zookeeper_ephemeralOwner").html("");
+			$("#zookeeper_dataLength").html("");
+			$("#zookeeper_numChildren").html("");
+			$("#zookeeper_pzxid").html("");			
+			$("#zookeeper_node_path").html(nodePath);			
+			$("#zookeeper_node_data").html(data);			
+		}else{
+			$("#zookeeper_czxid").html(stat.czxid);
+			$("#zookeeper_mzxid").html(stat.mzxid);
+			$("#zookeeper_ctime").html(stat.ctime);
+			$("#zookeeper_mtime").html(stat.mtime);
+			$("#zookeeper_version").html(stat.version);
+			$("#zookeeper_cversion").html(stat.cversion);
+			$("#zookeeper_aversion").html(stat.aversion);
+			$("#zookeeper_ephemeralOwner").html(stat.ephemeralOwner);
+			$("#zookeeper_dataLength").html(stat.dataLength);
+			$("#zookeeper_numChildren").html(stat.numChildren);
+			$("#zookeeper_pzxid").html(stat.pzxid);			
+			$("#zookeeper_node_path").html(nodePath);			
+			$("#zookeeper_node_data").html(data);			
+		}
+	}
+	
+    /*检测zookeeper 状态*/
+    function checkZookeeperStatus(){
+    	$("#zookeeperConnectioned").html("检测连接中...");
+    	$("#zookeeperConnectioned").css("color","#FFB800");
+    	 $.ajax({
+                type: "POST",
+                url: "/checkZookeeperStatus",
+                cache: true,
+                dataType:"json",
+                data:{"params":params},
+                success: function(result){
+                    //console.log(JSON.stringify(result));
+                    if(result != null ){
+                    	if(result.zookeeperConnectioned != null && undefined != result.zookeeperConnectioned && result.zookeeperConnectioned == true){
+                    		$("#zookeeperConnectioned").html("连接成功");
+                    		$("#zookeeperConnectioned").css("color","#5FB878");
+                    		$("#zookeeper-li-a").css("color","#5FB878");
+                    	}else{
+                    		$("#zookeeperConnectioned").html("连接失败");
+                    		$("#zookeeperConnectioned").css("color","#FF5722");
+                    		$("#zookeeper-li-a").css("color","#FF5722");
+                    		 closeWindowTask();
+                    	}
+                  		$("#zookeeperAddress").html(result.zookeeperAddress);
+                  		$("#zookeeperPort").html(result.zookeeperPort);
+                    }
+                },
+                //error 在请求出错时调用。传入XMLHttpRequest对象，描述错误类型的字符串以及一个异常对象（如果有的话） 
+                error:function(XMLHttpRequest, textStatus, errorThrown){
+                	//console.log(JSON.stringify(XMLHttpRequest));
+                 	//console.log(JSON.stringify(textStatus));
+                 	//console.log(JSON.stringify(errorThrown));
+                	$("#zookeeperConnectioned").html("连接失败,服务异常！");
+                    $("#zookeeperConnectioned").css("color","#FF5722");
+                    $("#zookeeper-li-a").css("color","#FF5722");
+                    closeWindowTask();
+                }
+            });
+    }
+    
+    /*连接zookeeper*/
+    function connectionZookeeper(){
+   		  $.ajax({
+                type: "POST",
+                url: "/zookeeperConnection",
+                cache: true,
+                dataType:"json",
+                data:{"params":params},
+                success: function(result){
+                    //console.log(JSON.stringify(result));
+                    if(result != null ){
+                    	if(result.zookeeperConnectioned != null && undefined != result.zookeeperConnectioned && result.zookeeperConnectioned == true){
+                    		$("#zookeeperConnectioned").html("连接成功");
+                    		$("#zookeeperConnectioned").css("color","#5FB878");
+                    		$("#zookeeper-li-a").css("color","#5FB878");
+                    		selectZookeeperNodeList();
+                    		startWindowTask();
+                    	}else{
+                    		$("#zookeeperConnectioned").html("连接失败");
+                    		$("#zookeeperConnectioned").css("color","#FF5722");
+                    		$("#zookeeper-li-a").css("color","#FF5722");
+                    		 closeWindowTask();
+                    	}
+                  		$("#zookeeperAddress").html(result.zookeeperAddress);
+                    }
+                },
+                //error 在请求出错时调用。传入XMLHttpRequest对象，描述错误类型的字符串以及一个异常对象（如果有的话） 
+                error:function(XMLHttpRequest, textStatus, errorThrown){
+                	//console.log(JSON.stringify(XMLHttpRequest));
+                 	//console.log(JSON.stringify(textStatus));
+                 	//console.log(JSON.stringify(errorThrown));
+                	$("#zookeeperConnectioned").html("连接失败,服务异常！");
+                    $("#zookeeperConnectioned").css("color","#FF5722");
+                    $("#zookeeper-li-a").css("color","#FF5722");
+                    closeWindowTask();
+                }
+            });
+  	}
+  	/*关闭zookeeper*/
+    function closeZookeeper(){
+   		  $.ajax({
+                type: "POST",
+                url: "/closeZookeeper",
+                cache: true,
+                dataType:"json",
+                data:{"params":params},
+                success: function(result){
+                    //console.log(JSON.stringify(result));
+                    if(result != null ){
+                    	if(result.zookeeperclosed != null && undefined != result.zookeeperclosed && result.zookeeperclosed == true){
+                    		$("#zookeeperConnectioned").html("关闭成功");
+                    		$("#zookeeperConnectioned").css("color","#5FB878");
+                    		$("#zookeeper-li-a").css("color","#5FB878");
+                    	}else{
+                    		$("#zookeeperConnectioned").html("关闭失败");
+                    		$("#zookeeperConnectioned").css("color","#FF5722");
+                    		$("#zookeeper-li-a").css("color","#FF5722");
+                    	}
+                    }
+                },
+                //error 在请求出错时调用。传入XMLHttpRequest对象，描述错误类型的字符串以及一个异常对象（如果有的话） 
+                error:function(XMLHttpRequest, textStatus, errorThrown){
+                 	//console.log(JSON.stringify(XMLHttpRequest));
+                 	//console.log(JSON.stringify(textStatus));
+                 	//console.log(JSON.stringify(errorThrown));
+                	$("#zookeeperConnectioned").html("连接失败,服务异常！");
+                    $("#zookeeperConnectioned").css("color","#FF5722");
+                    $("#zookeeper-li-a").css("color","#FF5722");
+                }
+            });
+            closeWindowTask();
+  	}
+  	
+  	/*重新加载*/
+  	function reloadThisPage(){
+  		closeZookeeper();
+  		window.location.reload();
+  	}
+  	/*首页*/
+  	function openIndexPage(){
+  		closeZookeeper();
+  		window.location.href="/zookeeper";
+  	}
+  	
+    /*启动定时检测*/
+    function startWindowTask(){
+   		checkZookeeperHeath = null;
+    	checkZookeeperHeath = window.setInterval(function() {
+				checkZookeeperStatus();
+			}, 4000);
+    }
+     /*关闭定时检测*/
+    function closeWindowTask(){
+    	 if(null != checkZookeeperHeath){
+            window.clearInterval(checkZookeeperHeath);
+            checkZookeeperHeath = null;
+         }
+    }
+</script>
+</body>
+</html>

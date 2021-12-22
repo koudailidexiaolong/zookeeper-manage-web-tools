@@ -66,6 +66,9 @@ public class ZookeeperConfiguration {
 		if(logger.isTraceEnabled()){
 			logger.trace("connected to zookeeper：{}",connection);
 		}
+		if(connection == false){
+			curator = null;
+		}
 		return curator;
 	}
 

@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
@@ -111,7 +110,6 @@ public class ZookeeperAction {
 	 * @date 2021年12月4日 下午5:20:16
 	 * @desc
 	 */
-	@SuppressWarnings("deprecation")
 	@RequestMapping(value = {"/zookeeperConnection"})
 	@ResponseBody
 	public Map<String,Object> zookeeperConnection(String connectString) {
@@ -122,7 +120,7 @@ public class ZookeeperAction {
 		try {
 			CuratorFramework curatorFramework = this.zookeeperServiceImpl.connectionZookeeper();
 			if(curatorFramework != null){
-				zookeeperConnectioned = curatorFramework.isStarted();
+				zookeeperConnectioned = curatorFramework.getZookeeperClient().blockUntilConnectedOrTimedOut();
 				logger.info("【zookeeper】-连接zookeeper状态：{}",zookeeperConnectioned);
 				zookeeperAddress = curatorFramework.getZookeeperClient().getCurrentConnectionString();
 			}else{

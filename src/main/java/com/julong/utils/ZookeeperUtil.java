@@ -33,19 +33,22 @@ public class ZookeeperUtil {
 	 * @date 2021年12月4日 下午5:16:26
 	 * @desc
 	 */
-	@SuppressWarnings("deprecation")
 	public static boolean connectionZookeeper(ZookeeperConfiguration zookeeperConfiguration){
 		logger.info("【zookeeper工具类】-连接zookeeper开始");
 		try {
-			ExponentialBackoffRetry retryPolicy = new ExponentialBackoffRetry(1000,10);
+			//baseSleepTimeMs  maxRetries
+			ExponentialBackoffRetry retryPolicy = new ExponentialBackoffRetry(zookeeperConfiguration.zookeeperProperties().getBaseSleepTimeMs(),zookeeperConfiguration.zookeeperProperties().getMaxRetries());
 			curatorFramework =  zookeeperConfiguration.curatorFramework(retryPolicy, null);
-			return curatorFramework.isStarted();
+			if(null != curatorFramework){
+				return true;
+			}
 		} catch (Exception e) {
 			// TODO: handle exception
 //			e.printStackTrace();
 			logger.error("【zookeeper工具类】-连接zookeeper失败:{}",e);
 			return false;
 		}
+		return false;
 	}
 
 	/**
@@ -55,10 +58,16 @@ public class ZookeeperUtil {
 	 * @date 2021年12月4日 下午6:18:18
 	 * @desc
 	 */
-	@SuppressWarnings("deprecation")
 	public static boolean isConnection(){
-		boolean started = curatorFramework.isStarted();
-		logger.info("【zookeeper工具类】-连接zookeeper状态：{}",started);
+		boolean started = false;
+		try {
+			started = curatorFramework.getZookeeperClient().blockUntilConnectedOrTimedOut();
+			logger.info("【zookeeper工具类】-连接zookeeper状态：{}",started);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+//			e.printStackTrace();
+			logger.error("【zookeeper工具类】-检测zookeeper连接状态异常：{}",e);
+		}
 		return started;
 	}
 	

@@ -232,9 +232,7 @@
               	//console.log(JSON.stringify(XMLHttpRequest));
                	//console.log(JSON.stringify(textStatus));
                	//console.log(JSON.stringify(errorThrown));
-              	$("#zookeeperConnectioned").html("连接失败,服务异常！");
-                  $("#zookeeperConnectioned").css("color","#FF5722");
-                  $("#zookeeper-li-a").css("color","#FF5722");
+                  connectionErrorCSS("连接失败,服务异常！");
                   closeWindowTask();
               }
           });
@@ -245,6 +243,8 @@
     	if(null == nodePath || "" == nodePath || undefined == ""){
     		nodePath = "/";
     	}
+    	//遮盖层
+    	var loading = layer.msg('正在查询', {icon: 16, shade: 0.3, time:0});
  		  $.ajax({
               type: "POST",
               url: "/checkZookeeperNodeExist",
@@ -252,7 +252,8 @@
               dataType:"json",
               data:{"params":params,"nodePath":nodePath},
               success: function(result){
-                  console.log(JSON.stringify(result));
+              	  layer.close(loading);
+                  //console.log(JSON.stringify(result));
                   if(result != null){
                   	if(result.zookeeperConnectioned == false){
                   		layer.alert("未连接到zookeeper服务器，请先连接！", {icon: 5});
@@ -263,12 +264,11 @@
               },
               //error 在请求出错时调用。传入XMLHttpRequest对象，描述错误类型的字符串以及一个异常对象（如果有的话） 
               error:function(XMLHttpRequest, textStatus, errorThrown){
+              	 layer.close(loading);
               	//console.log(JSON.stringify(XMLHttpRequest));
                	//console.log(JSON.stringify(textStatus));
                	//console.log(JSON.stringify(errorThrown));
-              	  $("#zookeeperConnectioned").html("连接失败,服务异常！");
-                  $("#zookeeperConnectioned").css("color","#FF5722");
-                  $("#zookeeper-li-a").css("color","#FF5722");
+                  connectionErrorCSS("连接失败,服务异常！");
                   closeWindowTask();
                   showStat(null,nodePath,null);
               }
@@ -315,21 +315,18 @@
     	 $.ajax({
                 type: "POST",
                 url: "/checkZookeeperStatus",
-                cache: true,
+                cache: false,
+                async:false,//同步请求(默认: true) 默认设置下，所有请求均为异步请求。如果需要发送同步请求，请将此选项设置为 false。注意，同步请求将锁住浏览器，用户其它操作必须等待请求完成才可以执行。
                 dataType:"json",
                 data:{"params":params},
                 success: function(result){
                     //console.log(JSON.stringify(result));
                     if(result != null ){
                     	if(result.zookeeperConnectioned != null && undefined != result.zookeeperConnectioned && result.zookeeperConnectioned == true){
-                    		$("#zookeeperConnectioned").html("连接成功");
-                    		$("#zookeeperConnectioned").css("color","#5FB878");
-                    		$("#zookeeper-li-a").css("color","#5FB878");
+                    		connectionOKCSS("连接成功");
                     	}else{
-                    		$("#zookeeperConnectioned").html("连接失败");
-                    		$("#zookeeperConnectioned").css("color","#FF5722");
-                    		$("#zookeeper-li-a").css("color","#FF5722");
-                    		 closeWindowTask();
+                    		connectionErrorCSS("连接失败");
+                    		closeWindowTask();
                     	}
                   		$("#zookeeperAddress").html(result.zookeeperAddress);
                   		$("#zookeeperPort").html(result.zookeeperPort);
@@ -343,6 +340,7 @@
                 	$("#zookeeperConnectioned").html("连接失败,服务异常！");
                     $("#zookeeperConnectioned").css("color","#FF5722");
                     $("#zookeeper-li-a").css("color","#FF5722");
+                    
                     closeWindowTask();
                 }
             });
@@ -356,20 +354,19 @@
                 cache: true,
                 dataType:"json",
                 data:{"params":params},
+                beforeSend:function(XMLHttpRequest){
+               		 $("#zookeeperConnectioned").html("连接中...");
+                },
                 success: function(result){
                     //console.log(JSON.stringify(result));
                     if(result != null ){
                     	if(result.zookeeperConnectioned != null && undefined != result.zookeeperConnectioned && result.zookeeperConnectioned == true){
-                    		$("#zookeeperConnectioned").html("连接成功");
-                    		$("#zookeeperConnectioned").css("color","#5FB878");
-                    		$("#zookeeper-li-a").css("color","#5FB878");
+                    		connectionOKCSS("连接成功");
                     		selectZookeeperNodeList();
                     		startWindowTask();
                     	}else{
-                    		$("#zookeeperConnectioned").html("连接失败");
-                    		$("#zookeeperConnectioned").css("color","#FF5722");
-                    		$("#zookeeper-li-a").css("color","#FF5722");
-                    		 closeWindowTask();
+                    		connectionErrorCSS("连接失败");
+                    		closeWindowTask();
                     	}
                   		$("#zookeeperAddress").html(result.zookeeperAddress);
                     }
@@ -379,9 +376,7 @@
                 	//console.log(JSON.stringify(XMLHttpRequest));
                  	//console.log(JSON.stringify(textStatus));
                  	//console.log(JSON.stringify(errorThrown));
-                	$("#zookeeperConnectioned").html("连接失败,服务异常！");
-                    $("#zookeeperConnectioned").css("color","#FF5722");
-                    $("#zookeeper-li-a").css("color","#FF5722");
+                 	connectionErrorCSS("连接失败,服务异常！");
                     closeWindowTask();
                 }
             });
@@ -398,13 +393,9 @@
                     //console.log(JSON.stringify(result));
                     if(result != null ){
                     	if(result.zookeeperclosed != null && undefined != result.zookeeperclosed && result.zookeeperclosed == true){
-                    		$("#zookeeperConnectioned").html("关闭成功");
-                    		$("#zookeeperConnectioned").css("color","#5FB878");
-                    		$("#zookeeper-li-a").css("color","#5FB878");
+                    		 connectionOKCSS("关闭成功");
                     	}else{
-                    		$("#zookeeperConnectioned").html("关闭失败");
-                    		$("#zookeeperConnectioned").css("color","#FF5722");
-                    		$("#zookeeper-li-a").css("color","#FF5722");
+                    		 connectionErrorCSS("关闭失败");
                     	}
                     }
                 },
@@ -413,9 +404,7 @@
                  	//console.log(JSON.stringify(XMLHttpRequest));
                  	//console.log(JSON.stringify(textStatus));
                  	//console.log(JSON.stringify(errorThrown));
-                	$("#zookeeperConnectioned").html("连接失败,服务异常！");
-                    $("#zookeeperConnectioned").css("color","#FF5722");
-                    $("#zookeeper-li-a").css("color","#FF5722");
+                    connectionErrorCSS("连接失败,服务异常！");
                 }
             });
             closeWindowTask();
@@ -430,6 +419,18 @@
   	function openIndexPage(){
   		closeZookeeper();
   		window.location.href="/zookeeper";
+  	}
+  	/*连接成功样式*/
+  	function connectionOKCSS(message){
+  		$("#zookeeperConnectioned").html(message);
+   		$("#zookeeperConnectioned").css("color","#5FB878");
+   		$("#zookeeper-li-a").css("color","#5FB878");
+  	}
+  	/*连接失败样式*/
+  	function connectionErrorCSS(message){
+  		$("#zookeeperConnectioned").html("连接失败,服务异常！");
+        $("#zookeeperConnectioned").css("color","#FF5722");
+        $("#zookeeper-li-a").css("color","#FF5722");
   	}
   	
     /*启动定时检测*/
